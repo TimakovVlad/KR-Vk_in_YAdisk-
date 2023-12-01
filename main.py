@@ -1,4 +1,5 @@
 import requests
+import pprint
 # from urllib.parse import urlencode
 #
 # APP_id_vk = "51805677"
@@ -14,6 +15,7 @@ import requests
 # oaith_url = f"{OAUTH_BASE_URL}?{urlencode(params)}"
 # print(oaith_url)
 
+
 # https://api.vk.com/method/status.get?<PARAMS>
 #
 class VKsaveYA:
@@ -28,8 +30,7 @@ class VKsaveYA:
             'access_token': self.token,
             'user_id': self.user_id,
             'album_id': 'profile',
-            'photo_sizes': 1,
-            'extended': 1,
+            'extended': 5,
             'count': 5,
             'v': '5.131'
         }
@@ -40,5 +41,5 @@ class VKsaveYA:
 
 if __name__ == '__main__':
     vk = VKsaveYA(TOKEN, 596164780)
-    print(vk.get_photo())
+    pprint.pprint(vk.get_photo())
 
