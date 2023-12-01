@@ -1,5 +1,5 @@
 import requests
-import pprint
+from pprint import pprint
 # from urllib.parse import urlencode
 #
 # APP_id_vk = "51805677"
@@ -31,15 +31,30 @@ class VKsaveYA:
             'user_id': self.user_id,
             'album_id': 'profile',
             'extended': 5,
-            'count': 5,
             'v': '5.131'
         }
         url = self.API_BASE_URL + 'photos.get'
         response = requests.get(url, params=params)
         return response.json()
 
+    def create_folder_in_ya(self):
+        url = "https://cloud-api.yandex.net/v1/disk/resources"
+        params = {"path": "VK_photos"}
+        headers = {"Authorization": f"OAuth {TOKEN_YA}"}
+        response = requests.put(url, params=params, headers=headers)
+        return response
+
+    def upload_photo_in_ya(self, photo_url, photo_name):
+        url_base = "https://cloud-api.yandex.net/v1/disk/resources/upload"
+        headers = {"Authorization": f"OAuth {TOKEN_YA}"}
+        params = {"url": photo_url, "path": f"VK_photos/{photo_name}.jpg", "overwrite": "true"}
+        response = requests.post(url_base, params=params, headers=headers)
+        return response
+
 
 if __name__ == '__main__':
-    vk = VKsaveYA(TOKEN, 596164780)
-    pprint.pprint(vk.get_photo())
+    vk = VKsaveYA(TOKEN_VK, 596164780)
+    pprint(vk.get_photo())
+    pprint(vk.create_folder_in_ya())
+    pprint(vk.upload_photo_in_ya("https://sun9-80.userapi.com/impg/jWrKpsLGLEMpbqsbEXHhJwfLHPsug8I9aQB1zg/cxOBk0sgvxs.jpg?size=1024x1536&quality=95&sign=2297893f72c4a9637f4bf58a5c8143bd&c_uniq_tag=rVlJgCS2yhEXyisRfxn6WFbgoVinDL5WwqYuRg4hZt4&type=album", '0'))
 
