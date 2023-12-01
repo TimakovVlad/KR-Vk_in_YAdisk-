@@ -1,23 +1,44 @@
-APP_id_vk = "51805499"
 import requests
+# from urllib.parse import urlencode
+#
+# APP_id_vk = "51805677"
+# OAUTH_BASE_URL = "https://oauth.vk.com/authorize"
+# params = {
+#     "client_id": APP_id_vk,
+#     "redirect_uri": "https://oauth.vk.com/blank.html",
+#     "display": "page",
+#     "scope": "photos",
+#     "response_type": "token",
+# }
+#
+# oaith_url = f"{OAUTH_BASE_URL}?{urlencode(params)}"
+# print(oaith_url)
 
-class VK:
+# https://api.vk.com/method/status.get?<PARAMS>
+#
+class VKsaveYA:
+    API_BASE_URL = 'https://api.vk.com/method/'
 
-   def __init__(self, access_token, user_id, version='5.131'):
-       self.token = access_token
-       self.id = user_id
-       self.version = version
-       self.params = {'access_token': self.token, 'v': self.version}
+    def __init__(self, token, user_id):
+        self.token = token
+        self.user_id = user_id
 
-   def users_info(self):
-       url = 'https://api.vk.com/method/users.get'
-       params = {'user_ids': self.id}
-       response = requests.get(url, params={**self.params, **params})
-       return response.json()
+    def get_photo(self):
+        params = {
+            'access_token': self.token,
+            'user_id': self.user_id,
+            'album_id': 'profile',
+            'photo_sizes': 1,
+            'extended': 1,
+            'count': 5,
+            'v': '5.131'
+        }
+        url = self.API_BASE_URL + 'photos.get'
+        response = requests.get(url, params=params)
+        return response.json()
 
 
-access_token = 'vk1.a.CzjNbXQvmfzUWHCsC08po8b7MDCSy7DJnta5VqHhjGD7Cr48BqDL47dSIf37VPqssEzT6aYfqT7yMxn8DloK5hq3Agfl0e4NWZUBEPNfRyw2YqPCzRYMOHLbVhBTOmADWdsiwQYLc05NeUlcjLGNim-K-JvK4boTEwmUEHlpVqMdfZBXtHT6tmHq4v0ZbW96QV6sDqzLZK4uV2-uMIQVAQ'
-user_id = '171121029'
-vk = VK(access_token, user_id)
-print(vk.users_info())
+if __name__ == '__main__':
+    vk = VKsaveYA(TOKEN, 596164780)
+    print(vk.get_photo())
 
