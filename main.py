@@ -6,8 +6,6 @@ logging.basicConfig(level=logging.INFO, filename="py_log.log",filemode="w",
                     format="%(asctime)s %(levelname)s %(message)s")
 
 class VKsaveYA:
-    API_BASE_URL = 'https://api.vk.com/method/'
-
     def __init__(self, token_vk, user_id, token_ya):
         self.token_vk = token_vk
         self.user_id = user_id
@@ -15,6 +13,7 @@ class VKsaveYA:
         logging.info("Class VKsaveYA has been created")
 
     def get_photo(self, count=5):
+        API_BASE_URL = 'https://api.vk.com/method/'
         params = {
             'access_token': self.token_vk,
             'user_id': self.user_id,
@@ -23,7 +22,7 @@ class VKsaveYA:
             'count': count,
             'v': '5.131'
         }
-        url = self.API_BASE_URL + 'photos.get'
+        url = API_BASE_URL + 'photos.get'
         response = requests.get(url, params=params)
         logging.info("The method get_photo has been called")
         return response.json()
