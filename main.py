@@ -1,33 +1,17 @@
 import requests
 from pprint import pprint
-# from urllib.parse import urlencode
-#
-# APP_id_vk = "51805677"
-# OAUTH_BASE_URL = "https://oauth.vk.com/authorize"
-# params = {
-#     "client_id": APP_id_vk,
-#     "redirect_uri": "https://oauth.vk.com/blank.html",
-#     "display": "page",
-#     "scope": "photos",
-#     "response_type": "token",
-# }
-#
-# oaith_url = f"{OAUTH_BASE_URL}?{urlencode(params)}"
-# print(oaith_url)
 
-
-# https://api.vk.com/method/status.get?<PARAMS>
-#
 class VKsaveYA:
     API_BASE_URL = 'https://api.vk.com/method/'
 
-    def __init__(self, token, user_id):
-        self.token = token
+    def __init__(self, token_vk, user_id, token_ya):
+        self.token_vk = token_vk
         self.user_id = user_id
+        self.token_ya = token_ya
 
     def get_photo(self):
         params = {
-            'access_token': self.token,
+            'access_token': self.token_vk,
             'user_id': self.user_id,
             'album_id': 'profile',
             'extended': 5,
@@ -40,21 +24,45 @@ class VKsaveYA:
     def create_folder_in_ya(self):
         url = "https://cloud-api.yandex.net/v1/disk/resources"
         params = {"path": "VK_photos"}
-        headers = {"Authorization": f"OAuth {TOKEN_YA}"}
+        headers = {"Authorization": f"OAuth {self.token_ya}"}
         response = requests.put(url, params=params, headers=headers)
         return response
 
-    def upload_photo_in_ya(self, photo_url, photo_name):
+    def download_photo_in_ya(self, photo_url, photo_name):
         url_base = "https://cloud-api.yandex.net/v1/disk/resources/upload"
-        headers = {"Authorization": f"OAuth {TOKEN_YA}"}
+        headers = {"Authorization": f"OAuth {self.token_ya}"}
         params = {"url": photo_url, "path": f"VK_photos/{photo_name}.jpg", "overwrite": "true"}
         response = requests.post(url_base, params=params, headers=headers)
         return response
 
 
-if __name__ == '__main__':
-    vk = VKsaveYA(TOKEN_VK, 596164780)
-    pprint(vk.get_photo())
-    pprint(vk.create_folder_in_ya())
-    pprint(vk.upload_photo_in_ya("https://sun9-80.userapi.com/impg/jWrKpsLGLEMpbqsbEXHhJwfLHPsug8I9aQB1zg/cxOBk0sgvxs.jpg?size=1024x1536&quality=95&sign=2297893f72c4a9637f4bf58a5c8143bd&c_uniq_tag=rVlJgCS2yhEXyisRfxn6WFbgoVinDL5WwqYuRg4hZt4&type=album", '0'))
+    def from_vk_to_ya(self):
+        self.create_folder_in_ya()
+        photos_dict = self.get_photo()
+        photos_names = []
+        log_info = []
+        for i in range(len(photos_dict['response']['items'])):
+            photo = photos_dict['response']['items'][i]
+            height_max = 0
+            for item in photo['sizes']:
+                if item['height'] > height_max:
+                    height_max = item['height']
+                    type_size = item['type']
+                    photo_url = item['url']
+            if photo['likes']['count'] not in photos_names:
+                photos_names.append(photo['likes']['count'])
+                photo_name = photo['likes']['count']
+            else:
+                photo_name = str(photo['date'])
+            self.download_photo_in_ya(photo_url, photo_name)
+            info = {"file_name": f"{photo_name}.jpg", "size": type_size}
+            log_info.append(info)
+        return log_info
 
+
+TOKEN_VK = ""
+TOKEN_YA = ''
+
+if __name__ == '__main__':
+    vk = VKsaveYA(TOKEN_VK, 596164780, TOKEN_YA)
+    pprint(vk.from_vk_to_ya())
